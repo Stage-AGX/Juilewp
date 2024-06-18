@@ -2,112 +2,149 @@
 
 // Security : avoid access on the file from WP settings
 if (!defined('ABSPATH')) {
-  exit;
+    exit; // Exit if accessed directly
 }
 
+add_action('admin_enqueue_scripts', 'agerixmap_enqueue_admin_scripts');
+function agerixmap_enqueue_admin_scripts($hook) {
+    // Vérifiez que vous êtes sur la page d'administration de votre plugin
+    if ($hook != 'toplevel_page_monplugin') {
+        return;
+    }
 
+    wp_enqueue_script('monplugin_admin_js', plugin_dir_url(__FILE__) . 'assets/admin.js', array(), '1.0', true);
+
+    // Localisez l'URL d'Ajax et d'autres données si nécessaire
+    wp_localize_script('monplugin_admin_js', 'monplugin_ajax_object', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('monplugin_nonce')
+    ));
+}
+
+add_action('wp_ajax_monplugin_action', 'monplugin_handle_ajax');
+
+function monplugin_handle_ajax() {
+    // Vérifiez le nonce pour la sécurité
+    check_ajax_referer('monplugin_nonce', 'nonce');
+
+    // Traitez les données reçues
+    $additional_data = isset($_POST['additional_data']) ? sanitize_text_field($_POST['additional_data']) : '';
+
+    // Effectuez votre traitement ici
+    $response = array('status' => 'success', 'message' => 'Données traitées avec succès', 'data' => $additional_data);
+
+    // Envoyez la réponse en JSON
+    wp_send_json($response);
+
+    // Arrêtez l'exécution du script
+    wp_die();
+}
 
 // Add administration menu
-function agerixcarte_add_admin_menu() {
-  add_menu_page(
-    'Agerix Carte',            // Title of the page
-      'Agerix Carte',            // Title of the menu
-      'manage_options',                  // Capacity
-      'agerixcarte',                     // Id of the menu
-      'agerixcarte_dashboard_page',      // function to show the contenu of the page
-      plugin_dir_url(__FILE__) . 'assets/petale-agerix.svg', // logo of the menu
-        6                             // position 
-  ); 
-
-
+function agerix_add_admin_menu() {
+    add_menu_page(
+        'Agerix Carte', // Title of the page
+        'Agerix Carte', // Title of the menu
+        'manage_options', // Capacity required
+        'agerix-carte', // Id of the menu
+        'agerix_admin_page', // function to show the contenu of the page
+        plugin_dir_url(__FILE__) . 'assets/petale-agerix.svg', // logo of the menu
+        20 // position in the menu on the left
+    );
 }
+add_action('admin_menu', 'agerix_add_admin_menu');
 
-add_action('admin_menu', 'agerixcarte_add_admin_menu');
-
-
-// Afficher la page d'administration
+// show and parameter the admin page
 function agerix_admin_page() {
-  ?>
-  <div class="wrap">
-      <h1>Agerix Carte</h1>
-      <form method="post" action="options.php">
-          <?php
-          settings_fields('agerix_options_group');
-          do_settings_sections('agerix-carte');
-          submit_button();          
-          ?>
-      </form>
-  </div>
-  <?php
-}
-//add_action('admin_page','agerix_admin_page');
-
-// Initialiser les paramètres
-function agerix_settings_init() {
-  register_setting('agerix_options_group', 'agerix_countries_data');
-  register_setting('agerix_options_group', 'agerix_categories_colors', 'agerix_sanitize_colors');
-
-  add_settings_section(
-      'agerix_settings_section',
-      'Paramètres de la carte',
-      'agerix_settings_section_callback',
-      'agerix-carte'
-  );
-
-  add_settings_field(
-      'agerix_countries_data',
-      'Données des pays',
-      'agerix_countries_data_render',
-      'agerix-carte',
-      'agerix_settings_section'
-  );
-
-  add_settings_field(
-      'agerix_categories_colors',
-      'Couleurs des catégories',
-      'agerix_categories_colors_render',
-      'agerix-carte',
-      'agerix_settings_section'
-  );
-}
-add_action('admin_init', 'agerix_settings_init');
-
-function agerix_settings_section_callback() {
-  echo 'Modifier les catégories des pays et leurs couleurs.';
+    ?>
+    <div class="wrap">
+        <h1>Agerix Carte - Paramètres</h1>  
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('agerix_settings_group');
+            do_settings_sections('agerix-carte');
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
 }
 
+// Enregistrer les paramètres
+function agerix_register_settings() {
+    register_setting('agerix_settings_group', 'agerix_categories_colors', 'sanitize_agerix_colors');
+    
+    add_settings_section(
+        'agerix_settings_section',
+        'Paramètres des Catégories',
+        'agerix_settings_section_callback',
+        'agerix-carte'
+    );
 
-// to change the colors on the back-end
-function agerix_countries_data_render() {
-  $options = get_option('agerix_countries_data', file_get_contents(plugin_dir_path(__FILE__) . 'assets/js/categories-data.json'));
-  ?>
-  <textarea name="agerix_countries_data" rows="10" cols="50"><?php echo esc_textarea($options); ?></textarea>
-  <?php
-}
+    $categories_colors = get_option('agerix_categories_colors', [
+        'Categorie 1' => '#ff0000',
+        'Categorie 2' => '#00ff00',
+        'Categorie 3' => '#0000ff',
+        'Categorie 4' => '#ffff00',
+        'Categorie 5' => '#ff00ff',
+        'Categorie 6' => '#00ffff',
+    ]);
 
-function agerix_categories_colors_render() {
-  $categories_colors = get_option('agerix_categories_colors', [
-      'Categorie 1' => '#FF5733',
-      'Categorie 2' => '#DAF7A6',
-      'Categorie 3' => '#61F9F2',
-      'Categorie 4' => '#616DF9',
-      'Categorie 5' => '#B13CFD',
-      'Categorie 6' => '#FD3CFA',
-  ]);
-  foreach ($categories_colors as $categorie => $color) {
-      ?>
-      <p>
-          <label for="agerix_categories_colors[<?php echo esc_attr($categorie); ?>]"><?php echo esc_html($categorie); ?>:</label>
-          <input type="color" name="agerix_categories_colors[<?php echo esc_attr($categorie); ?>]" value="<?php echo esc_attr($color); ?>">
-      </p>
-      <?php
-  }
-}
-  function agerix_sanitize_colors($input) {
-    $sanitized = [];
-    foreach ($input as $key => $value) {
-        $sanitized[$key] = sanitize_hex_color($value);
+    foreach ($categories_colors as $category => $color) {
+        add_settings_field(
+            'agerix_category_' . sanitize_title($category),
+            'Nom et Couleur de ' . $category,
+            'agerix_category_field_callback',
+            'agerix-carte',
+            'agerix_settings_section',
+            array('category' => $category, 'color' => $color)
+        );
     }
-    return $sanitized;
-  }
+}
+add_action('admin_init', 'agerix_register_settings');
+
+// Callback pour la section de paramètres
+function agerix_settings_section_callback() {
+    echo 'Modifiez les noms et les couleurs des catégories ci-dessous :';
+}
+
+// Callback pour chaque champ de catégorie
+function agerix_category_field_callback($args) {
+    $category = $args['category'];
+    $color = $args['color'];
+    ?>
+    <input type="text" name="agerix_categories_colors[<?php echo esc_attr($category); ?>][name]" value="<?php echo esc_attr($category); ?>" />
+    <input type="text" class="color-picker" name="agerix_categories_colors[<?php echo esc_attr($category); ?>][color]" value="<?php echo esc_attr($color); ?>" data-default-color="<?php echo esc_attr($color); ?>" />
+    <?php
+}
+
+// Sanitize les entrées
+function sanitize_agerix_colors($input) {
+    $output = [];
+    foreach ($input as $category => $values) {
+        $output[sanitize_text_field($values['name'])] = sanitize_hex_color($values['color']);
+    }
+    return $output;
+}
+
+// Enqueue le script de la color picker
+function agerix_enqueue_color_picker($hook_suffix) {
+    if ('toplevel_page_agerix-carte' !== $hook_suffix) {
+        return;
+    }
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('agerix-admin-script', plugin_dir_url(__FILE__) . 'assets/admin.js', array('wp-color-picker'), false, true);
+}
+add_action('admin_enqueue_scripts', 'agerix_enqueue_color_picker');
+
+// add the style of the admin page
+add_action('admin_enqueue_scripts', 'agerixmap_admin_styles');
+
+function agerixmap_admin_styles($hook) {
+    if ($hook!= 'toplevel_page_monplugin') {
+      return;
+    }  
+    wp_enqueue_style('agerixmap_admin_css', plugin_dir_url(__FILE__) . 'assets/styles/admin-style.css');
+}
 ?>
+

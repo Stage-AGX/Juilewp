@@ -9,41 +9,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-// (document).ready(function($) {
+(document).ready(function($) {
 
-//     console.log("teouist");
+    console.log("teouist");
 
-//     // var countriesData = JSON.parse(agerix_countries_data); // R�cup�rer les donn�es des pays
+    var countriesData = JSON.parse(agerix_countries_data); // R�cup�rer les donn�es des pays
 
-//     // var categoriesColors = agerixData.categoriesColors; // R�cup�rer les couleurs des cat�gories
+    var categoriesColors = agerixData.categoriesColors; // R�cup�rer les couleurs des cat�gories
 
-//     // $('.agerix-map-container path').on('mouseover', function() {
+    $('.agerix-map-container path').on('mouseover', function() {
 
-//     //     var countryId = $(this).attr('data-id'); //id of the svg
+        var countryId = $(this).attr('data-id'); //id of the svg
 
-//     //     var country = countriesData.find(c => c['categoryJsonPays'] === countryId); // id of the countries-data.json
-
-
-
-//     //     if (countryData) {
-
-//     //         // Change the fill color on hover
-
-//     //         $(this).css('fill', categoryJsonColor);
-
-//     //         // Display country details 
+        var country = countriesData.find(c => c['categoryJsonPays'] === countryId); // id of the countries-data.json
 
 
 
-//     //     }
+        if (countryData) {
 
-//     // }).on('mouseout', function() {
+            // Change the fill color on hover
 
-//     //     // Reset the fill color on mouseout
+            $(this).css('fill', categoryJsonColor);
 
-//     //     $(this).css('fill', '#ececec');
+            // Display country details 
 
-//     // });
 
-// });
+
+        }
+
+    }).on('mouseout', function() {
+
+        // Reset the fill color on mouseout
+
+        $(this).css('fill', '#ececec');
+
+    });
+
+});
 

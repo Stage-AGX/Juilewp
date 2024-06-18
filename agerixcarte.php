@@ -2,7 +2,7 @@
 
 /**
  * @package cartewp
- * @version 1.1.5
+ * @version 1.1.7
  * 
  * Plugin Name: agerixcarte
  * Plugi URI: https://julie.agerix.wf/wordpress/
@@ -12,6 +12,11 @@
  * Author URI: https://www.agerix.fr/
  */
 
+
+// If this file is called directly, abort.
+if (!defined( 'WPINC' ) ) {
+  die;
+}
 
 // Function to display "Hello, World!" text
 function display_hello_world() {
@@ -30,16 +35,12 @@ function load_country_translation() {
 }
 add_action( 'plugins_loaded', 'load_country_translation' );
 
-
 // Load admin folder
-if (is_admin()) {
-  require_once plugin_dir_path(__FILE__) . 'admin.php'; //load dashboard page
-}
-
+require_once plugin_dir_path(__FILE__) . 'admin.php'; //load dashboard page
 
 // Function to handle the SVG shortcode
 function svg_shortcode_handler($atts){ //take the svg from the svg file on the folder
-  $svg_file_path = plugin_dir_path( __FILE__ ) . 'assets/worldmap.svg'; //path of the svg
+  $svg_file_path = plugin_dir_path( __FILE__ ) . 'worldmap.svg'; //path of the svg
 
   //check if the file exists
   if(file_exists($svg_file_path)){
@@ -99,9 +100,24 @@ add_shortcode('svg', 'svg_shortcode_handler');
 // Enqueue les scripts et styles
 function agerix_enqueue_scripts() {
   wp_enqueue_style('agerix-style', plugin_dir_url(__FILE__) . 'assets/styles/worldmapagerix.css');
-  // wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . '../assets/js/categories-data.json', array('jquery'), null, true);
-  // wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . '../assets/js/countries-data.json', array('jquery'), null, true);
   wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . 'assets/js/worldmapagerix.js', array('jquery'), null, true);
+  wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . 'assets/js/countries-data.json', array('jquery'), null, true);
+  wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . 'assets/js/categories-data.json', array('jquery'), null, true);
+  
+  $countries_data = get_option('agerix_countries_data', file_get_contents(plugin_dir_path(__FILE__) . 'assets/js/countries-data.json'));
+  $categories_colors = get_option('agerix_categories_colors', [
+      'Categorie 1' => '#ff0000',
+      'Categorie 2' => '#00ff00',
+      'Categorie 3' => '#0000ff',
+      'Categorie 4' => '#ffff00',
+      'Categorie 5' => '#ff00ff',
+      'Categorie 6' => '#00ffff',
+  ]);
+
+  wp_localize_script('agerix-script', 'agerixData', array(
+      'countriesData' => $countries_data,
+      'categoriesColors' => $categories_colors
+  ));
 }
 add_action('wp_enqueue_scripts', 'agerix_enqueue_scripts');
 
