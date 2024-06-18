@@ -47,46 +47,7 @@ function svg_shortcode_handler($atts){ //take the svg from the svg file on the f
   // read the file contents 
     $svg_content = file_get_contents($svg_file_path);
 
-    // filter and remove any HTML tags that are not allowed and may be dangerous
-    $svg_content = wp_kses($svg_content, array(
-      'svg' => array(
-        'xmlns' => array(),
-        'width' => array(),
-        'height' => array(),
-        'viewBox' => array(),
-        'fill' => array(),
-        'baseProfile' => array(),
-        'display' => array(),
-        'stroke' => array(),
-        'stroke-linecap' => array(),
-        'stroke-linejoin' => array(),
-        'stroke-width' => array(),
-        'version' => array(),
-      ),
-      'path' => array(
-        'd' => array(),
-        'fill' => array(),
-      ),
-      'g' => array(
-        'id' => array(), // Adding groups
-        'name' => array(),
-      ),
-      'circle' => array(
-        'cx' => array(),
-        'cy' => array(),
-        'r' => array(),
-        'fill' => array(),
-      ),
-      'rect' => array(
-        'x' => array(),
-        'y' => array(),
-        'width' => array(),
-        'height' => array(),
-        'fill' => array(),
-      ),
-        // Add more SVG tags and attributes as needed
-    ));
-    
+        
     // Return the SVG content wrapped in a div
     return '<div class="svg-container">' . $svg_content . '</div>';
   }
@@ -100,9 +61,8 @@ add_shortcode('svg', 'svg_shortcode_handler');
 // Enqueue les scripts et styles
 function agerix_enqueue_scripts() {
   wp_enqueue_style('agerix-style', plugin_dir_url(__FILE__) . 'assets/styles/worldmapagerix.css');
-  wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . 'assets/js/worldmapagerix.js', array('jquery'), null, true);
-  wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . 'assets/js/countries-data.json', array('jquery'), null, true);
-  wp_enqueue_script('agerix-script', plugin_dir_url(__FILE__) . 'assets/js/categories-data.json', array('jquery'), null, true);
+  wp_enqueue_script('agerix-script-worldmapagerix', plugins_url('/assets/js/worldmapagerix.js', __FILE__), array(), '1.0', true);
+ 
   
   $countries_data = get_option('agerix_countries_data', file_get_contents(plugin_dir_path(__FILE__) . 'assets/js/countries-data.json'));
   $categories_colors = get_option('agerix_categories_colors', [
@@ -114,10 +74,10 @@ function agerix_enqueue_scripts() {
       'Categorie 6' => '#00ffff',
   ]);
 
-  wp_localize_script('agerix-script', 'agerixData', array(
-      'countriesData' => $countries_data,
-      'categoriesColors' => $categories_colors
+  wp_localize_script('agerix-script-worldmapagerix', 'agerixcarte_vars', array(
+    'plugin_url' => plugins_url('', __FILE__)
   ));
+
 }
 add_action('wp_enqueue_scripts', 'agerix_enqueue_scripts');
 

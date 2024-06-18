@@ -133,7 +133,7 @@ function agerix_enqueue_color_picker($hook_suffix) {
         return;
     }
     wp_enqueue_style('wp-color-picker');
-    wp_enqueue_script('agerix-admin-script', plugin_dir_url(__FILE__) . 'assets/admin.js', array('wp-color-picker'), false, true);
+    wp_enqueue_script('agerix-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin.js', array('wp-color-picker'), false, true);
 }
 add_action('admin_enqueue_scripts', 'agerix_enqueue_color_picker');
 
