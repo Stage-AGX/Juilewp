@@ -19,43 +19,50 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(categoriesData => {
                 // Manipuler le SVG après avoir chargé les données JSON
                 var svg = document.getElementById('worldmap-svg')
-                var countriesGroup = svg.getElementById('countries');
-                var paths = countriesGroup.querySelectorAll('path');
+                if (svg) {
+                    var countriesGroup = svg.getElementById('countries'); // Sélectionner le <g> avec l'ID "countries"
+                    if (countriesGroup) {
+                        var paths = countriesGroup.querySelectorAll('path');
+                        
+                        paths.forEach(function(path) {
+                            var countryId = path.getAttribute('id'); // ID du pays dans le fichier SVG
+                            var countryData = countriesData[countryId]; // Données du pays depuis countries-data.json
 
+                            if (countryData) {
+                                // Mettre à jour les attributs du path avec les données du pays
+                                path.setAttribute('data-json-id', countryData.countryJsonId);
+                                path.setAttribute('data-json-name', countryData['country-json-name']);
+                                path.setAttribute('data-json-continent', countryData['country-json-continent']);
 
-                paths.forEach(function(path) {
-                    var countryId = path.getAttribute('id'); // ID du pays dans le fichier SVG
-                    var countryData = countriesData[countryId]; // Données du pays depuis countries-data.json
+                                // Ajouter un événement pour gérer les interactions avec le path (par exemple, survol)
+                                path.addEventListener('mouseover', function() {
+                                    var category = getCategoryForCountry(countryId, categoriesData);
+                                    if (category) {
+                                        path.style.fill = category.categoryJsonColor; // Changer la couleur de remplissage en fonction de la catégorie
+                                    }
+                                });
 
-                    if (countryData) {
-                        // Mettre à jour les attributs du path avec les données du pays
-                        path.setAttribute('data-json-id', countryData.countryJsonId);
-                        path.setAttribute('data-json-name', countryData['country-json-name']);
-                        path.setAttribute('data-json-continent', countryData['country-json-continent']);
-
-                        // Ajouter un événement pour gérer les interactions avec le path (par exemple, survol)
-                        path.addEventListener('mouseover', function() {
-                            var category = getCategoryForCountry(countryId, categoriesData);
-                            if (category) {
-                                path.style.fill = category.categoryJsonColor; // Changer la couleur de remplissage en fonction de la catégorie
+                                path.addEventListener('mouseout', function() {
+                                    path.style.fill = ''; // Restaurer la couleur par défaut
+                                });
                             }
                         });
-
-                        path.addEventListener('mouseout', function() {
-                            path.style.fill = ''; // Restaurer la couleur par défaut
-                        });
+                    } else {
+                        console.error('Element with ID "countries" not found in the SVG.');
                     }
-                });
+                } else {
+                    console.error('SVG with ID "worldmap-svg" not found.');
+                }
             })
             .catch(error => {
                 console.error('Erreur lors du chargement des données JSON :', error);
             });
-        })
+    })
     .catch(error => {
         console.error('Erreur lors du chargement des données JSON :', error);
     });
 
-    function getCategoryForCountry(countryId, categoriesData) {
+function getCategoryForCountry(countryId, categoriesData) {
     // Parcourir les catégories pour trouver celle du pays donné
     for (var categoryKey in categoriesData) {
         var category = categoriesData[categoryKey];
@@ -64,5 +71,5 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     return null;
-    }
-})
+}
+});

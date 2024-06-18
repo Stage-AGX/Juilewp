@@ -1,9 +1,27 @@
-.svg-container {
+.cagerix-map-container {
     max-width: 100%;
     height: auto;
+    margin: 0 auto;
+    display: block;
 }
 
-.svg-container path {
+/* Styles pour la page admin */
+.wrap {
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+input.color-picker {
+    margin-top: 5px;
+    margin-right: 10px;
+}
+
+/* for the load of the svg */
+#worldmap-svg path {
     transition: fill 0.3s ease;
 }
 
+/* for the hover of the svg */
+#worldmap-svg path:hover {
+    fill: #c012cc; 
+}

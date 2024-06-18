@@ -1,11 +1,22 @@
 {
     "category1": {
         "categoryJsonColor": "#FF5733",
-        "categoryJsonPays": []
+        "categoryJsonPays": [
+            "FR", 
+            "GB",
+            "PT",
+            "CH",
+            "RU",
+            "US"
+        ]
     },
     "category2": {
-        "categoryJsonColor": "#DAF7A6",
-        "categoryJsonPays": []
+        "categoryJsonColor": "#DAF9A6",
+        "categoryJsonPays": [
+            "AF", 
+            "AO",
+            "BR"
+        ]
     },
     "category3": {
         "categoryJsonColor": "#61F9F2",
