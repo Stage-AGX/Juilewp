@@ -1,0 +1,27 @@
+{
+    "category1": {
+        "categoryJsonColor": "#FF5733",
+        "categoryJsonPays": []
+    },
+    "category2": {
+        "categoryJsonColor": "#DAF7A6",
+        "categoryJsonPays": []
+    },
+    "category3": {
+        "categoryJsonColor": "#61F9F2",
+        "categoryJsonPays": []
+    },
+    "category4": {
+        "categoryJsonColor": "#616DF9",
+        "categoryJsonPays": []
+    },
+    "category5": {
+        "categoryJsonColor": "#B13CFD",
+        "categoryJsonPays": []
+    },
+    "category6": {
+        "categoryJsonColor": "#FD3CFA",
+        "categoryJsonPays": []
+    }
+}
+    

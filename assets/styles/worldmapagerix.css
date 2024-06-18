@@ -1,0 +1,9 @@
+.svg-container {
+    max-width: 100%;
+    height: auto;
+}
+
+.svg-container path {
+    transition: fill 0.3s ease;
+}
+
